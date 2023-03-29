@@ -9,7 +9,7 @@ import (
 	"os/signal"
 	"time"
 
-	pb "github.com/shashi-banger/metrics_grpc_sidecar/metricspb/metricspb_v1"
+	pb "github.com/milindghiya/metrics_grpc_sidecar/metricspb/metricspb_v1"
 	"google.golang.org/grpc"
 )
 

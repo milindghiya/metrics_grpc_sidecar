@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/shashi-banger/metrics_grpc_sidecar/metrics"
-	v1 "github.com/shashi-banger/metrics_grpc_sidecar/metricspb/metricspb_v1"
+	"github.com/milindghiya/metrics_grpc_sidecar/metrics"
+	v1 "github.com/milindghiya/metrics_grpc_sidecar/metricspb/metricspb_v1"
 	"google.golang.org/grpc"
 )
 

@@ -11,7 +11,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	v1 "github.com/shashi-banger/metrics_grpc_sidecar/metricspb/metricspb_v1"
+	v1 "github.com/milindghiya/metrics_grpc_sidecar/metricspb/metricspb_v1"
 )
 
 type MetricType string
