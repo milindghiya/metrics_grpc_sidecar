@@ -8,14 +8,14 @@ import (
 )
 
 type MetricsClient struct {
-	enabled bool
+	Enabled bool
 	conn *grpc.ClientConn
 	client pb.MetricsClient
 	grpcTimeoutInSeconds time.Duration
 }
 
 func (mc *MetricsClient) ObserveHistogram(name string, labels map[string]string, value float64) {
-	if mc.enabled {
+	if mc.Enabled {
 		ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeoutInSeconds * time.Second)
 		defer cancel()
 		updateParams := pb.UpdateParams{Name: name, LabelValues: labels, Value: value}
@@ -25,7 +25,7 @@ func (mc *MetricsClient) ObserveHistogram(name string, labels map[string]string,
 
 
 func (mc *MetricsClient) SetGauge(name string, labels map[string]string, value float64) {
-	if mc.enabled {
+	if mc.Enabled {
 		ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeoutInSeconds * time.Second)
 		defer cancel()
 		updateParams := pb.UpdateParams{Name: name, LabelValues: labels, Value: value}
@@ -34,7 +34,7 @@ func (mc *MetricsClient) SetGauge(name string, labels map[string]string, value f
 }
 
 func (mc *MetricsClient) IncrementCounter(name string, labels map[string]string) {
-	if mc.enabled {
+	if mc.Enabled {
 		ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeoutInSeconds * time.Second)
 		defer cancel()
 		updateParams := pb.UpdateParams{Name: name, LabelValues: labels}
@@ -43,13 +43,13 @@ func (mc *MetricsClient) IncrementCounter(name string, labels map[string]string)
 }
 
 func (mc *MetricsClient) CloseConnection() {
-	if mc.enabled {
+	if mc.Enabled {
 		mc.conn.Close()
 	}
 }
 
-func (mc *MetricsClient) Connect(address string, grpcTimeoutInSeconds float64, isEnabled bool) error {
-	if isEnabled {
+func (mc *MetricsClient) Connect(address string, grpcTimeoutInSeconds float64) error {
+	if mc.Enabled {
 		conn, err := grpc.Dial(address, grpc.WithInsecure())
 		if err != nil {
 			//print error
@@ -57,14 +57,13 @@ func (mc *MetricsClient) Connect(address string, grpcTimeoutInSeconds float64, i
 		}
 		mc.client = pb.NewMetricsClient(conn)
 		mc.conn = conn
-		mc.enabled = true
 		mc.grpcTimeoutInSeconds = time.Duration(grpcTimeoutInSeconds)
 	}
 	return nil
 }
 
 func (mc *MetricsClient) AddHistogramMetric(name string, labels []string, help string, buckets []float64) {
-	if mc.enabled {
+	if mc.Enabled {
 		ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeoutInSeconds * time.Second)
 		defer cancel()
 		histogramParams := pb.CreateHistogramParams{Name:name, Labels:labels, Help:help, Buckets:buckets}
@@ -73,7 +72,7 @@ func (mc *MetricsClient) AddHistogramMetric(name string, labels []string, help s
 }
 
 func (mc *MetricsClient) AddGaugeMetric(name string, labels []string, help string) {
-	if mc.enabled {
+	if mc.Enabled {
 		ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeoutInSeconds * time.Second)
 		defer cancel()
 		gaugeParams := pb.CreateGaugeParams{Name: name, Labels: labels, Help: help}
@@ -83,7 +82,7 @@ func (mc *MetricsClient) AddGaugeMetric(name string, labels []string, help strin
 
 
 func (mc *MetricsClient) AddCounterMetric(name string, labels []string, help string) {
-	if mc.enabled {
+	if mc.Enabled {
 		ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeoutInSeconds * time.Second)
 		defer cancel()
 		counterParams := pb.CreateCounterParams{Name: name, Labels: labels, Help: help}
