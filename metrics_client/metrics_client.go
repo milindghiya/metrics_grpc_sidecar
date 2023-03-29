@@ -1,4 +1,4 @@
-package main
+package metrics_client
 
 import (
 	"google.golang.org/grpc"
