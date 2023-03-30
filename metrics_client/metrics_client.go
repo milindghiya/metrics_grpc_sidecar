@@ -5,7 +5,9 @@ import (
 	pb "github.com/milindghiya/metrics_grpc_sidecar/metricspb/metricspb_v1"
 	"context"
 	"time"
+	"fmt"
 )
+
 
 type MetricsClient struct {
 	Enabled bool
@@ -50,9 +52,22 @@ func (mc *MetricsClient) CloseConnection() {
 
 func (mc *MetricsClient) Connect(address string, grpcTimeoutInSeconds float64) error {
 	if mc.Enabled {
-		conn, err := grpc.Dial(address, grpc.WithInsecure())
+		conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithDefaultServiceConfig(`{
+			"methodConfig": [{
+					"name": [{"service": "grpc.examples.echo.Echo"}],
+					"waitForReady": true,
+					"retryPolicy": {
+							"MaxAttempts": 10,
+							"InitialBackoff": ".01s",
+							"MaxBackoff": "2s",
+							"BackoffMultiplier": 2.0,
+							"RetryableStatusCodes": [ "UNAVAILABLE" ]
+					}
+			}]
+		}`))
 		if err != nil {
 			//print error
+			fmt.Println(err)
 			return err
 		}
 		mc.client = pb.NewMetricsClient(conn)

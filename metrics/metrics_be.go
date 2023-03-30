@@ -77,7 +77,7 @@ func init() {
 func StartMetricsEndpointServer() {
 	fmt.Println("Starting http server")
 	http.Handle("/metrics", promhttp.Handler())
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":8000", nil)
 	fmt.Println("Stopping http server")
 }
 
