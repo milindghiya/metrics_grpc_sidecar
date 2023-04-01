@@ -26,7 +26,7 @@ func commonMiddleware(next http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         log.Println("before request")
 		next.ServeHTTP(w, r)
-        metricsClient.IncrementCounter("num_requests", map[string]string{"container_name":"default_http_server"})
+        update, err := metricsClient.IncrementCounter("num_requests", map[string]string{"container_name":"default_http_server"})
         log.Println("after request")
 	})
 }

@@ -110,12 +110,11 @@ func CreateCounter(params *v1.CreateCounterParams) error {
 		params.Labels,
 	)
 
-	prometheus.MustRegister(counterCollector)
-
 	collector_key := create_collector_key_from_list(params.Name, params.Labels)
 	if _, ok := metricsContext.counterCollectors[collector_key]; ok {
 		err = fmt.Errorf("%s: counter collector_key %s alreadyExists", ErrorAlreadyExists, collector_key)
 	} else {
+		prometheus.MustRegister(counterCollector)
 		metricsContext.counterCollectors[collector_key] = counterCollector
 	}
 	return err
@@ -142,13 +141,11 @@ func CreateGauge(params *v1.CreateGaugeParams) error {
 		},
 		params.Labels,
 	)
-
-	prometheus.MustRegister(gaugeCollector)
-
 	collector_key := create_collector_key_from_list(params.Name, params.Labels)
 	if _, ok := metricsContext.gaugeCollectors[collector_key]; ok {
 		err = fmt.Errorf("%s: gauge collector_key %s alreadyExists", ErrorAlreadyExists, collector_key)
 	} else {
+		prometheus.MustRegister(gaugeCollector)
 		metricsContext.gaugeCollectors[collector_key] = gaugeCollector
 	}
 	return err
@@ -176,11 +173,11 @@ func CreateHistogram(params *v1.CreateHistogramParams) error {
 		},
 		params.Labels,
 	)
-	prometheus.MustRegister(histogramCollector)
 	collector_key := create_collector_key_from_list(params.Name, params.Labels)
 	if _, ok := metricsContext.histogramCollectors[collector_key]; ok {
 		err = fmt.Errorf("%s: histogram collector_key %s alreadyExists", ErrorAlreadyExists, collector_key)
 	} else {
+		prometheus.MustRegister(histogramCollector)
 		metricsContext.histogramCollectors[collector_key] = histogramCollector
 	}
 	return err

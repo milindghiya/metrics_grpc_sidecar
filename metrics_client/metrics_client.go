@@ -16,7 +16,7 @@ type MetricsClient struct {
 	grpcTimeoutInSeconds time.Duration
 }
 
-func (mc *MetricsClient) ObserveHistogram(name string, labels map[string]string, value float64) {
+func (mc *MetricsClient) ObserveHistogram(name string, labels map[string]string, value float64) error {
 	if mc.Enabled {
 		ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeoutInSeconds * time.Second)
 		defer cancel()
@@ -26,7 +26,7 @@ func (mc *MetricsClient) ObserveHistogram(name string, labels map[string]string,
 }
 
 
-func (mc *MetricsClient) SetGauge(name string, labels map[string]string, value float64) {
+func (mc *MetricsClient) SetGauge(name string, labels map[string]string, value float64) error {
 	if mc.Enabled {
 		ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeoutInSeconds * time.Second)
 		defer cancel()
@@ -35,7 +35,7 @@ func (mc *MetricsClient) SetGauge(name string, labels map[string]string, value f
 	}
 }
 
-func (mc *MetricsClient) IncrementCounter(name string, labels map[string]string) {
+func (mc *MetricsClient) IncrementCounter(name string, labels map[string]string) error {
 	if mc.Enabled {
 		ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeoutInSeconds * time.Second)
 		defer cancel()
@@ -52,19 +52,7 @@ func (mc *MetricsClient) CloseConnection() {
 
 func (mc *MetricsClient) Connect(address string, grpcTimeoutInSeconds float64) error {
 	if mc.Enabled {
-		conn, err := grpc.Dial(address, grpc.WithInsecure(), grpc.WithDefaultServiceConfig(`{
-			"methodConfig": [{
-					"name": [{"service": "grpc.examples.echo.Echo"}],
-					"waitForReady": true,
-					"retryPolicy": {
-							"MaxAttempts": 10,
-							"InitialBackoff": ".01s",
-							"MaxBackoff": "2s",
-							"BackoffMultiplier": 2.0,
-							"RetryableStatusCodes": [ "UNAVAILABLE" ]
-					}
-			}]
-		}`))
+		conn, err := grpc.Dial(address, grpc.WithInsecure())
 		if err != nil {
 			//print error
 			fmt.Println(err)
