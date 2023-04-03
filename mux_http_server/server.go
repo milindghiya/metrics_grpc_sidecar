@@ -5,7 +5,8 @@ import (
     "net/http"
     mtc "github.com/milindghiya/metrics_grpc_sidecar/metrics_client"
     "github.com/gorilla/mux"
-    rw "github.com/milindghiya/response_writer"
+    rw "github.com/milindghiya/metrics_grpc_sidecar/response_writer"
+    "strconv"
 )
 
 var (
@@ -23,12 +24,20 @@ func newMetricsClient() mtc.MetricsClient {
 func commonMiddleware(next http.Handler) http.Handler {
     
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        respWriter := rw.NewResponseWriter(w)
+        
         log.Println("method", r.Method, "path", r.URL.Path)
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(respWriter, r)
         metricsClient.IncrementCounter("num_requests", map[string]string{"container_name":"default_http_server"})
         metricsClient.Wait()
-        log.Println()
+        statusCodeStr := respWriter.StatusCodeStr()
+		isErrorStr := strconv.FormatBool(IsStatusError(respWriter.StatusCode()))
+        log.Println(statusCodeStr, isErrorStr)
 	})
+}
+
+func IsStatusError(statusCode int) bool {
+	return statusCode < 200 || statusCode >= 400
 }
 
 
