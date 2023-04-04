@@ -25,6 +25,10 @@ func NewResponseWriter(w http.ResponseWriter) *ResponseWriter {
 	}
 }
 
+func (r *ResponseWriter) StartTime() time.Time {
+	return r.started
+}
+
 func (r *ResponseWriter) StatusCode() int {
 	return r.statusCode
 }
