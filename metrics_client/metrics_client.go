@@ -21,43 +21,39 @@ type MetricsClient struct {
 func (mc *MetricsClient) ObserveHistogram(name string, labels map[string]string, value float64) {
 
 	if mc.Enabled {
-		mc.wg.Add(1)
-		go func() {
-			defer mc.wg.Done()
-			ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeout*time.Second)
-			defer cancel()
-			updateParams := pb.UpdateParams{Name: name, LabelValues: labels, Value: value}
-			mc.client.HistogramObserve(ctx, &updateParams)
-		}()
+		ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeout*time.Second)
+		defer cancel()
+		updateParams := pb.UpdateParams{Name: name, LabelValues: labels, Value: value}
+		_, err := mc.client.HistogramObserve(ctx, &updateParams)
+		handlerError(err)
 	}
 }
 
 func (mc *MetricsClient) SetGauge(name string, labels map[string]string, value float64) {
 	if mc.Enabled {
-		mc.wg.Add(1)
-		go func() {
-			defer mc.wg.Done()
 			ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeout*time.Second)
 			defer cancel()
 			updateParams := pb.UpdateParams{Name: name, LabelValues: labels, Value: value}
-			mc.client.GaugeSet(ctx, &updateParams)
-		}()
+			_, err := mc.client.GaugeSet(ctx, &updateParams)
+			handlerError(err)
 	}
 }
 
 func (mc *MetricsClient) IncrementCounter(name string, labels map[string]string) {
 	if mc.Enabled {
-		mc.wg.Add(1)
-		go func() {
-			defer mc.wg.Done()
 			ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeout*time.Second)
 			defer cancel()
 			updateParams := pb.UpdateParams{Name: name, LabelValues: labels}
-			mc.client.CounterInc(ctx, &updateParams)
-		}()
+			_, err := mc.client.CounterInc(ctx, &updateParams)
+			handlerError(err)
 	}
 }
 
+func handlerError(err error) {
+	if err != nil {
+		fmt.Println(err)
+	}
+}
 func (mc *MetricsClient) CloseConnection() {
 	if mc.Enabled {
 		mc.conn.Close()
@@ -71,6 +67,7 @@ func (mc *MetricsClient) Connect(address string, grpcTimeout float64) {
 		if err != nil {
 			fmt.Println(err)
 		}
+		fmt.Println("Grpc connection gets established successfully!!")
 		mc.client = pb.NewMetricsClient(conn)
 		mc.conn = conn
 		mc.grpcTimeout = time.Duration(grpcTimeout)
@@ -79,45 +76,30 @@ func (mc *MetricsClient) Connect(address string, grpcTimeout float64) {
 
 func (mc *MetricsClient) AddHistogramMetric(name string, labels []string, help string, buckets []float64) {
 	if mc.Enabled {
-		mc.wg.Add(1)
-		go func() {
-			defer mc.wg.Done()
 			ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeout*time.Second)
 			defer cancel()
 			histogramParams := pb.CreateHistogramParams{Name: name, Labels: labels, Help: help, Buckets: buckets}
-			mc.client.CreateHistogram(ctx, &histogramParams)
-		}()
+			_, err := mc.client.CreateHistogram(ctx, &histogramParams)
+			handlerError(err)
 	}
 }
 
 func (mc *MetricsClient) AddGaugeMetric(name string, labels []string, help string) {
 	if mc.Enabled {
-		mc.wg.Add(1)
-		go func() {
-			defer mc.wg.Done()
 			ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeout*time.Second)
 			defer cancel()
 			gaugeParams := pb.CreateGaugeParams{Name: name, Labels: labels, Help: help}
-			mc.client.CreateGauge(ctx, &gaugeParams)
-		}()
+			_, err := mc.client.CreateGauge(ctx, &gaugeParams)
+			handlerError(err)
 	}
 }
 
 func (mc *MetricsClient) AddCounterMetric(name string, labels []string, help string) {
 	if mc.Enabled {
-		mc.wg.Add(1)
-		go func() {
-			defer mc.wg.Done()
 			ctx, cancel := context.WithTimeout(context.Background(), mc.grpcTimeout*time.Second)
 			defer cancel()
 			counterParams := pb.CreateCounterParams{Name: name, Labels: labels, Help: help}
-			mc.client.CreateCounter(ctx, &counterParams)
-		}()
-	}
-}
-
-func (mc *MetricsClient) Wait() {
-	if mc.Enabled {
-		mc.wg.Wait()
+			_, err := mc.client.CreateCounter(ctx, &counterParams)
+			handlerError(err)
 	}
 }

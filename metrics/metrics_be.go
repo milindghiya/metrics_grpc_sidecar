@@ -86,7 +86,7 @@ func create_collector_key_from_list(name string, all_labels []string) string {
 	all_keys_str := strings.Join(all_labels, " ")
 	h := fnv.New32a()
 	h.Write([]byte(all_keys_str))
-	final_str := fmt.Sprintf("%s_%s", "num_bytes", strconv.FormatUint(uint64(h.Sum32()), 10))
+	final_str := fmt.Sprintf("%s_%s_%s", name, "num_bytes", strconv.FormatUint(uint64(h.Sum32()), 10))
 	return final_str
 }
 
