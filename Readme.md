@@ -15,6 +15,7 @@ The above produces to applications `metrics_collector` and `metrics_producer`.
 
 - `metrics_collector`: Application with grpc interface which can be used as side car for collecting metrics. It serves a `/metrics` end point where metrics can be fetched or scraped by prometheus server.
 - `metrics_producer`: An example application making grpc calls to `media_collector` for producing metrics
+- `mux_http_server`: A demo http server in golang using mux as Router for routing request to specific handler and instrumenting the metrics using grpc client metrics_collector
 
 ## Example run
 
@@ -23,11 +24,16 @@ The above produces to applications `metrics_collector` and `metrics_producer`.
 ./metrics_collector
 
 # Terminal 2
-./metrics_producer --a 0.0.0.0:50051
+./mux_http_server 
 
 # Terminal 3
+curl http://localhost:3333/hello
+
+curl http://localhost:3333/hello/1
+
 curl http://localhost:8080/metrics
 ```
  
+
 
 
