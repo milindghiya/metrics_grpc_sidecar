@@ -31,7 +31,7 @@ curl http://localhost:3333/hello
 
 curl http://localhost:3333/hello/1
 
-curl http://localhost:8080/metrics
+curl http://localhost:8000/metrics
 ```
  
 
